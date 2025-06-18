@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PPT Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    /* Custom animations */
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.5; }
+    }
+    .animate-pulse { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+    /* Grid pattern overlay */
+    .grid-pattern {
+      background-image: linear-gradient(rgba(0,255,255,0.03) 1px, transparent 1px),
+                       linear-gradient(90deg, rgba(0,255,255,0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    /* Progress bar */
+    @keyframes progress {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+    .progress-bar {
+      animation: progress 3s linear forwards;
+    }
+
+    /* Notification styles */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      max-width: 400px;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      transform: translateX(100%);
+      transition: transform 0.3s ease-in-out;
+    }
+    .notification.show {
+      transform: translateX(0);
+    }
+    .notification.success {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #22c55e;
+    }
+    .notification.error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+    }
+
+    /* Slide preview styles */
+    .slide-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .slide {
+      width: 300px;
+      height: 169px; /* 16:9 aspect ratio */
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      position: relative;
+      unicode-bidi: embed;
+      direction: ltr;
+    }
+    .slide.rtl {
+      direction: rtl;
+      text-align: right;
+    }
+    .slide-header {
+      background: #007BFF;
+      color: white;
+      padding: 0.5rem;
+      font-size: 1rem;
+      font-weight: bold;
+      font-family: Arial, sans-serif;
+    }
+    .slide-content {
+      padding: 0.5rem;
+      font-size: 0.8rem;
+      color: #333;
+      overflow-y: auto;
+      height: 110px;
+      font-family: Arial, sans-serif;
+    }
+    .slide-content.rtl ul {
+      margin-left: 0;
+      margin-right: 1.5rem;
+      list-style-position: outside;
+    }
+
+    /* Download button */
+    .download-button {
+      margin-top: 1rem;
+      display: none; /* Hidden until slides are ready */
+    }
+
+    /* Ensure page is scrollable */
+    html, body {
+      height: auto;
+      min-height: 100vh;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-purple-900 relative overflow-y-auto">
+  <!-- Background effects -->
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-cyan-500/20 via-transparent to-purple-500/20"></div>
+  <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-cyan-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+  <div class="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-pink-400/20 to-cyan-400/20 rounded-full blur-3xl animate-pulse"></div>
+  <div class="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-r from-green-400/10 to-blue-400/10 rounded-full blur-2xl animate-pulse"></div>
+  <div class="absolute inset-0 grid-pattern"></div>
+
+  <div class="relative z-10">
+    <div class="container mx-auto">
+      <h1 class="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent mb-8 pl-4 pt-4">
+        PPT Generator
+      </h1>
+      
+      <div class="bg-black/30 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-cyan-800/30 p-8 shadow-cyan-500/10">
+        <p class="text-gray-300 mb-6">Generating your presentation...</p>
+        
+        <!-- Progress Bar -->
+        <div id="progress-container" class="mt-16">
+          <div class="flex items-center justify-between mb-6">
+            <span class="text-cyan-300 font-medium">Generating PPT...</span>
+            <span id="progress-text" class="text-gray-400">0%</span>
+          </div>
+          <div class="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+            <div id="progress-bar" class="bg-gradient-to-r from-cyan-400 to-purple-600 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Slide Preview -->
+        <div id="preview-container" class="mt-8 hidden">
+          <h2 class="text-2xl font-bold text-cyan-300 mb-4">Presentation Preview</h2>
+          <div id="preview-slides" class="slide-preview"></div>
+          <div class="download-button flex justify-center">
+            <button id="download-pdf" class="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white px-8 py-3 font-semibold rounded-xl shadow-lg shadow-cyan-500/25 border border-cyan-400/30 transition-all duration-300">
+              Download PDF Presentation
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-center">
+        <a href="index.html" class="bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white px-8 py-3 font-semibold rounded-xl shadow-lg shadow-cyan-500/25 border border-cyan-800/30 transition-all duration-300">
+          Back to Home
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- Footer --><footer class="backdrop-blur-xl border-t border-cyan-400/20 py-8 md:py-12">
+  <div class="container mx-auto px-4 text-center">
+    <p class="text-gray-300 mb-4">© 2025 ExamCao. All rights reserved.</p>
+    <div class="flex flex-col sm:flex-row justify-center gap-4 md:gap-6 text-gray-400">
+      <a href="#" class="hover:text-cyan-300 transition-colors">Privacy Policy</a>
+      <a href="#" class="hover:text-cyan-300 transition-colors">Terms of Service</a>
+      <a href="#" class="hover:text-cyan-300 transition-colors">Contact Us</a>
+    </div>
+  </div>
+</footer>
+
+  <script>
+    let slidesData = null; // Store slides for download
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const checkJsPDF = setInterval(() => {
+        if (typeof window.jspdf !== 'undefined' && window.jspdf.jsPDF) {
+          clearInterval(checkJsPDF);
+          generatePreview();
+        }
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(checkJsPDF);
+        if (!window.jspdf || !window.jspdf.jsPDF) {
+          showNotification('Failed to load jsPDF library. Please check your internet connection.', 'error');
+          setTimeout(() => window.location.href = 'index.html', 3000);
+        }
+      }, 10000);
+    });
+
+    function extractJSON(text) {
+      // Try to find JSON in the response
+      const jsonMatch = text.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+      }
+      
+      // If no JSON array found, try to find JSON object
+      const objMatch = text.match(/\{[\s\S]*\}/);
+      if (objMatch) {
+        const obj = JSON.parse(objMatch[0]);
+        return Array.isArray(obj) ? obj : [obj];
+      }
+      
+      throw new Error('No valid JSON found in response');
+    }
+
+    async function generatePreview() {
+      // First check if we have localStorage data, if not create fallback slides
+      let documentData = null;
+      try {
+        documentData = localStorage.getItem('fileSummarizerDocument');
+      } catch (e) {
+        console.warn('localStorage not available, using fallback');
+      }
+
+      if (!documentData) {
+        // Create fallback presentation
+        slidesData = [
+          {
+            title: "Welcome to Your Presentation",
+            bulletPoints: [
+              "This is a sample presentation",
+              "Generated when no document data is available",
+              "You can customize this content",
+              "Add your own slides and content",
+              "Download as PDF when ready"
+            ]
+          },
+          {
+            title: "Getting Started",
+            bulletPoints: [
+              "Upload a document to generate a real presentation",
+              "The system will analyze your content",
+              "Create structured slides automatically",
+              "Export to PDF format"
+            ]
+          }
+        ];
+        
+        showProgress();
+        updateProgress(50, 'Using sample data...');
+        renderSlides(slidesData, false);
+        return;
+      }
+
+      try {
+        // Debug: Log localStorage data
+        console.log('localStorage fileSummarizerDocument:', documentData);
+
+        let currentDocument;
+        try {
+          currentDocument = JSON.parse(documentData);
+        } catch (e) {
+          throw new Error('Failed to parse localStorage data: ' + e.message);
+        }
+
+        let summary = currentDocument.summary;
+        const filename = currentDocument.filename || 'document';
+
+        // Validate and fix summary structure
+        if (!Array.isArray(summary)) {
+          throw new Error('Invalid summary format: Not an array');
+        }
+        if (summary.length === 0) {
+          throw new Error('Invalid summary format: Empty array');
+        }
+        if (!summary.every(s => typeof s === 'object' && s.id && s.title && s.content)) {
+          console.warn('Summary objects missing required fields. Attempting to fix...');
+          summary = summary.map((s, i) => ({
+            id: s.id || `chapter-${i}`,
+            title: s.title || `Section ${i + 1}`,
+            content: s.content || 'No content available'
+          }));
+        }
+
+        showProgress();
+        updateProgress(20, 'Fetching presentation outline from Groq...');
+
+        // Call Groq API to refine summary into presentation outline
+        const groqApiKey = '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';
+        const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${groqApiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'llama3-70b-8192',
+            messages: [{
+              role: 'user',
+              content: `Convert the following document summary into a JSON array of presentation slides. Each slide should be a JSON object with exactly these properties: "title" (string) and "bulletPoints" (array of strings, max 5 items). Return ONLY the JSON array, no other text. Here is the summary: ${JSON.stringify(summary)}`
+            }],
+            max_tokens: 1500,
+            temperature: 0.1
+          })
+        });
+
+        if (!groqResponse.ok) {
+          throw new Error(`Groq API request failed: ${groqResponse.statusText}`);
+        }
+
+        const groqData = await groqResponse.json();
+        const groqContent = groqData.choices[0].message.content.trim();
+        
+        updateProgress(40, 'Processing API response...');
+
+        try {
+          // Try to extract JSON from the response
+          slidesData = extractJSON(groqContent);
+        } catch (e) {
+          console.warn('Failed to parse Groq response as JSON, creating slides from summary directly');
+          // Fallback: create slides directly from summary
+          slidesData = summary.map(section => ({
+            title: section.title,
+            bulletPoints: section.content.split('\n')
+              .filter(line => line.trim().length > 0)
+              .slice(0, 5)
+              .map(line => line.replace(/^[•\-*]\s*/, '').trim())
+          }));
+        }
+
+        // Validate the slides data
+        if (!Array.isArray(slidesData)) {
+          throw new Error('Invalid slides data: not an array');
+        }
+
+        // Ensure each slide has the required structure
+        slidesData = slidesData.map((slide, index) => ({
+          title: slide.title || `Slide ${index + 1}`,
+          bulletPoints: Array.isArray(slide.bulletPoints) 
+            ? slide.bulletPoints.slice(0, 5)
+            : (slide.content || 'No content available').split('\n').slice(0, 5)
+        }));
+
+        updateProgress(60, 'Generating slide previews...');
+
+        // Detect language for RTL support
+        const isRTL = summary.some(s => /[\u0600-\u06FF]/.test(s.content));
+        
+        renderSlides(slidesData, isRTL, filename);
+
+      } catch (error) {
+        hideProgress();
+        showNotification(`Error generating presentation: ${error.message}`, 'error');
+        console.error('Presentation generation error:', error);
+        console.log('localStorage content at error:', documentData);
+        
+        // Show fallback slides
+        slidesData = [
+          {
+            title: "Error Loading Document",
+            bulletPoints: [
+              "There was an issue processing your document",
+              "Please try uploading the document again",
+              "Check your internet connection",
+              "Contact support if the problem persists"
+            ]
+          }
+        ];
+        renderSlides(slidesData, false);
+      }
+    }
+
+    function renderSlides(slides, isRTL = false, filename = 'presentation') {
+      const slideClass = isRTL ? 'slide rtl' : 'slide';
+
+      // Render slide previews
+      const previewContainer = document.getElementById('preview-slides');
+      previewContainer.innerHTML = '';
+      slides.forEach((slide, index) => {
+        const slideDiv = document.createElement('div');
+        slideDiv.className = slideClass;
+        slideDiv.innerHTML = `
+          <div class="slide-header">${slide.title}</div>
+          <div class="slide-content ${isRTL ? 'rtl' : ''}">
+            <ul>
+              ${slide.bulletPoints.map(point => `<li>${point}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+        previewContainer.appendChild(slideDiv);
+        setTimeout(() => slideDiv.classList.add('visible'), index * 200);
+      });
+      
+      document.getElementById('preview-container').classList.remove('hidden');
+      document.getElementById('download-pdf').style.display = 'block';
+
+      updateProgress(80, 'Ready to download...');
+
+      // Bind download button
+      const downloadBtn = document.getElementById('download-pdf');
+      downloadBtn.replaceWith(downloadBtn.cloneNode(true)); // Remove existing listeners
+      document.getElementById('download-pdf').addEventListener('click', () => generatePDF(filename, slides, isRTL));
+      
+      updateProgress(100, 'Complete!');
+      setTimeout(() => hideProgress(), 1000);
+    }
+
+    function generatePDF(filename, slides, isRTL) {
+      try {
+        updateProgress(60, 'Creating PDF presentation...');
+        showProgress();
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+          orientation: 'landscape',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        // Add title slide
+        doc.setFillColor(0, 0, 0);
+        doc.rect(0, 0, 297, 210, 'F');
+        doc.setFontSize(24);
+        doc.setTextColor(0, 121, 255);
+        doc.text('Document Summary', 20, 30);
+        doc.setFontSize(16);
+        doc.setTextColor(100, 100, 100);
+        doc.text(filename, 20, 50);
+        doc.setFontSize(12);
+        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 70);
+
+        // Add content slides
+        slides.forEach((slide, index) => {
+          doc.addPage();
+          
+          // Slide header
+          doc.setFillColor(0, 121, 255);
+          doc.rect(0, 0, 297, 20, 'F');
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(18);
+          doc.text(slide.title, isRTL ? 277 : 20, 15, { align: isRTL ? 'right' : 'left' });
+
+          // Slide content
+          doc.setTextColor(0, 0, 0);
+          doc.setFontSize(12);
+          let y = 35;
+          slide.bulletPoints.forEach(point => {
+            if (y < 180) {
+              const lines = doc.splitTextToSize(`• ${point}`, 250);
+              lines.forEach(line => {
+                if (y < 180) {
+                  doc.text(line, isRTL ? 277 : 20, y, { align: isRTL ? 'right' : 'left' });
+                  y += 6;
+                }
+              });
+              y += 4; // Extra space between bullet points
+            }
+          });
+
+          // Slide border and number
+          doc.setDrawColor(0, 121, 255);
+          doc.setLineWidth(0.5);
+          doc.rect(5, 5, 287, 200);
+          doc.setFontSize(10);
+          doc.setTextColor(100, 100, 100);
+          doc.text(`Slide ${index + 1}`, isRTL ? 20 : 260, 200);
+        });
+
+        updateProgress(90, 'Finalizing PDF...');
+
+        // Save the PDF
+        doc.save(`${filename.replace(/\.[^/.]+$/, '')}_presentation.pdf`);
+
+        updateProgress(100, 'Complete!');
+        showNotification('PDF presentation downloaded successfully!', 'success');
+        setTimeout(() => hideProgress(), 2000);
+
+      } catch (error) {
+        hideProgress();
+        showNotification(`Error downloading PDF: ${error.message}`, 'error');
+        console.error('PDF generation error:', error);
+      }
+    }
+
+    function showProgress() {
+      document.getElementById('progress-container').classList.remove('hidden');
+      document.getElementById('progress-bar').style.width = '0%';
+      document.getElementById('progress-text').textContent = '0%';
+    }
+
+    function updateProgress(percentage, message) {
+      document.getElementById('progress-bar').style.width = `${percentage}%`;
+      document.getElementById('progress-text').textContent = `${percentage}%`;
+      document.getElementById('progress-container').querySelector('span').textContent = message;
+    }
+
+    function hideProgress() {
+      document.getElementById('progress-container').classList.add('hidden');
+    }
+
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type} show`;
+      notification.innerHTML = `
+        <div class="flex items-center gap-3">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="${type === 'success' ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'}"></path>
+          </svg>
+          <span>${message}</span>
+        </div>
+      `;
+      document.body.appendChild(notification);
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
