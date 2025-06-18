@@ -1,153 +1,248 @@
-ExamCao
-ExamCao is a modern web application suite designed to enhance document processing and text readability. It consists of two main components:
+✨ ExamCao
 
-ExamCao Web App: A browser-based application powered by Groq AI that summarizes, translates, and presents documents (PDF, TXT, DOCX) with features like multilingual summarization, natural voice narration, and smart export options.
-Bionic Hindi Text Converter: A Streamlit web application that transforms Hindi (Devanagari) text into "bionic Hindi" text to improve readability and comprehension.
+ExamCao is a modern web application suite designed to enhance document processing and text readability. It includes two powerful components:
 
-Both components are designed to be responsive, user-friendly, and privacy-focused, ensuring a seamless experience across all screen sizes.
-Features
-ExamCao Web App
+🎯 ExamCao Web App – A browser-based tool powered by Groq AI for summarizing, translating, and narrating documents.
 
-Smart Upload: Drag-and-drop support for PDF, TXT, and DOCX files with instant processing.
-AI Summarization: Extracts key insights using advanced AI, with bionic reading for enhanced comprehension.
-Multilingual Support: Summarize and translate documents in over 12 languages with accurate translations and native font rendering.
-Natural Voice Narration: High-quality text-to-speech in multiple accents for listening to summaries.
-Smart Export: Export summaries as polished presentations in PDF or PPT formats.
-Privacy First: Local, in-browser processing ensures your files remain secure with no data leaving your device.
-Lightning Fast: Instant file processing without server delays, regardless of file size.
-Responsive Design: Fully responsive UI that adapts to all screen sizes, from mobile to desktop.
+🔤 Bionic Hindi Text Converter – A Streamlit app that transforms Hindi (Devanagari) text into a "bionic" format for better readability.
 
-Bionic Hindi Text Converter
+Both components are responsive, user-friendly, and privacy-focused, ensuring a seamless experience across all devices.
 
-Text-to-Bionic Hindi Conversion: Transforms Hindi (Devanagari) text into bionic format for enhanced readability.
-Customizable Emphasis Settings: Adjust the level of word emphasis to suit user preferences.
-Dark/Light Theme Support: Switch between dark and light modes for comfortable viewing.
-Adjustable Font Size: Customize text size for better readability.
-Text-to-Speech Capability: Coming soon.
-Document Upload Support: Coming soon.
-Voice Input Support: Coming soon.
+📚 Table of Contents
+✨ Features
 
-Installation
-ExamCao Web App
-The web app is a static application that requires no backend setup.
+🚀 Installation
 
-Clone the Repository:
+🛠️ Usage
+
+🎨 Customization Options
+
+🧪 Technologies Used
+
+📂 Project Structure
+
+🤝 Contributing
+
+🐞 Issues
+
+📄 License
+
+📬 Contact
+
+✨ Features
+✅ ExamCao Web App
+🔁 Smart Upload: Drag-and-drop support for PDF, TXT, and DOCX files.
+
+🧠 AI Summarization: Highlights key insights using advanced AI with optional bionic formatting.
+
+🌐 Multilingual Support: Translate and summarize in over 12 languages with native font rendering.
+
+🗣️ Natural Voice Narration: High-quality TTS in various accents.
+
+📤 Smart Export: Export summaries as PDFs or PPTs (Coming Soon).
+
+🔒 Privacy First: All processing happens locally in your browser.
+
+⚡ Lightning Fast: Instant file handling with no server delays.
+
+📱 Responsive Design: Optimized UI for all devices.
+
+🔤 Bionic Hindi Text Converter
+🧬 Text-to-Bionic Hindi Conversion: Enhances Hindi text for better reading.
+
+🎛️ Custom Emphasis Settings: Tweak emphasis levels as per your comfort.
+
+🌙 Dark/Light Theme Support: View comfortably in any lighting.
+
+🔠 Adjustable Font Size: Set text size to match your needs.
+
+🎧 Coming Soon:
+
+Text-to-speech playback
+
+Document upload
+
+Voice input
+
+🚀 Installation
+🖥️ ExamCao Web App (No Backend Needed)
+Clone the Repository
+
+bash
+Copy
+Edit
 git clone https://github.com/your-username/examcao.git
 cd examcao
+Serve the Application Locally
 
+Using Python:
 
-Serve the Application: Use a local server to serve the static files:
-
-Using Python (Python 3.x required):
+bash
+Copy
+Edit
 python -m http.server 8000
+# Visit http://localhost:8000 in your browser
+Using Node.js:
 
-Open your browser and navigate to http://localhost:8000.
-
-Using Node.js (requires npm): Install a simple server like http-server:
+bash
+Copy
+Edit
 npm install -g http-server
 http-server
+# Visit http://localhost:8080
+Dependencies? None! Uses Tailwind via CDN + vanilla JS.
 
-Open your browser and navigate to http://localhost:8080.
+🧪 Bionic Hindi Text Converter (Streamlit App)
+Clone the Repository (if not already done)
 
-
-
-No Dependencies Required: The web app uses Tailwind CSS via CDN and vanilla JavaScript, so no additional dependencies are needed.
-
-
-Bionic Hindi Text Converter
-The Streamlit app requires Python and specific dependencies.
-
-Clone the Repository (if not already done):
+bash
+Copy
+Edit
 git clone https://github.com/your-username/examcao.git
 cd examcao
+Install Requirements
+Python 3.8+ is needed.
 
-
-Install Dependencies: Ensure you have Python 3.8+ installed, then install the required packages:
+bash
+Copy
+Edit
 pip install -r requirements.txt
+If requirements.txt is missing, start with:
 
-Note: If the requirements.txt file is not yet created, typical dependencies for a Streamlit app might include:
-streamlit
+bash
+Copy
+Edit
+pip install streamlit
+(Optional future features may use gTTS, pyttsx3, PyPDF2, python-docx)
 
-Additional dependencies may be required for text-to-speech or document processing features (to be added when implemented).
+Run the App
 
-Run the Streamlit App:
+bash
+Copy
+Edit
 streamlit run app.py
+Navigate to http://localhost:8501
 
-Open your browser and navigate to the URL provided by Streamlit (typically http://localhost:8501).
+🛠️ Usage
+📄 ExamCao Web App
+Launch the App: Open index.html in your browser.
 
+Explore the Interface: Browse through features and click Get Started Free.
 
-Usage
-ExamCao Web App
+Upload and Process File:
 
-Open the Application: Access the application by opening index.html in a modern web browser (Chrome, Firefox, Safari, Edge).
+Choose a language
 
-Navigate the Landing Page:
+Upload .pdf, .txt, or .docx
 
-Explore the features, testimonials, and "How It Works" sections.
-Click "Get Started Free" to access the file processing section.
+Click Process File
 
+Interact:
 
-Process a File:
+Read or listen to the summary
 
-Select a language from the dropdown (e.g., English, Spanish, French).
-Drag and drop or browse to upload a PDF, TXT, or DOCX file.
-Click "Process File" to generate a summary (simulated with sample content in this demo).
-View the summary, listen to it, or download it as a text file.
+Use Download Summary to save as .txt
 
+Future: Export as PDF/PPT with enhanced formatting.
 
-Export Options:
+🧬 Bionic Hindi Text Converter
+Run the Streamlit App
 
-Use the "Download Summary" button to save the summary as a .txt file.
-(Future implementation: Export as PDF or PPT presentations.)
+bash
+Copy
+Edit
+streamlit run app.py
+Enter Text & Customize:
 
+📝 Paste Hindi (Devanagari) text
 
+🔧 Adjust:
 
-Bionic Hindi Text Converter
+Emphasis Level
 
-Run the Streamlit App: After starting the app with streamlit run app.py, access it via the provided URL (e.g., http://localhost:8501).
+Color
 
-Convert Hindi Text:
+Theme
 
-Input Hindi (Devanagari) text into the provided text area.
-Adjust settings:
-Emphasis Level: Control how much of each word is emphasized.
-Color: Choose the emphasis color for bionic text.
-Theme: Switch between dark and light modes.
-Font Size: Adjust text size for readability.
+Font Size
 
+View Output Instantly
 
-View the converted bionic Hindi text instantly.
+Coming Soon:
 
+🎧 TTS support
 
-Future Features (Coming Soon):
+📄 File Upload
 
-Use text-to-speech to listen to the bionic text.
-Upload documents for automatic text extraction.
-Use voice input to enter text.
+🎙️ Voice Input
 
+🎨 Customization Options (Bionic Hindi)
+Option	Description
+Emphasis Level	Adjust word highlight ratio
+Emphasis Color	Pick a color to emphasize words
+Theme	Switch between dark and light modes
+Font Size	Scale text size for accessibility
 
+🧪 Technologies Used
+💻 ExamCao Web App
+HTML5
 
-Customization Options (Bionic Hindi Text Converter)
+Tailwind CSS (via CDN)
 
-Emphasis Level: Adjust the portion of each word highlighted to optimize readability.
-Color: Select a color for the emphasized text to enhance visual distinction.
-Theme: Choose between dark and light modes for better user comfort.
-Font Size: Modify text size to suit different screen sizes and user preferences.
+JavaScript (Vanilla)
 
-Technologies Used
-ExamCao Web App
+SVG Icons
 
-HTML5: For structuring the web application.
-Tailwind CSS: For responsive and modern styling via CDN.
-JavaScript: For interactivity, file handling simulation, and summary generation.
-SVG Icons: For visual elements and icons.
-No Backend: Purely client-side processing for privacy and speed.
+No Backend = Full Client-Side Privacy
 
-Bionic Hindi Text Converter
+🐍 Bionic Hindi Text Converter
+Python 3.8+
 
-Python: Core language for the Streamlit application.
-Streamlit: Framework for building the interactive web interface.
-(Future Dependencies): Libraries for text-to-speech (e.g., gTTS, pyttsx3) and document processing (e.g., PyPDF2, python-docx) may be added.
+Streamlit
 
+(Optional: gTTS, pyttsx3, PyPDF2, python-docx)
 
+📂 Project Structure
+bash
+Copy
+Edit
+examcao/
+├── index.html              # Web App entry point
+├── app.py                  # Streamlit app
+├── /assets                 # CSS, JS, Icons
+├── requirements.txt        # Python dependencies
+└── README.md               # Project documentation
+🤝 Contributing
+Contributions are welcome for both apps! 🎉
 
+Fork the Repo
+
+Create a Branch
+
+bash
+Copy
+Edit
+git checkout -b feature/your-feature-name
+Make Changes:
+
+Web App: Tailwind + JS
+
+Streamlit: Python
+
+Test Locally
+
+Push & PR
+
+bash
+Copy
+Edit
+git commit -m "Describe your changes"
+git push origin feature/your-feature-name
+Open a Pull Request
+
+🐞 Issues
+Found a bug? Have a feature request?
+Open an issue.
+
+📄 License
+This project is licensed under the MIT License.
